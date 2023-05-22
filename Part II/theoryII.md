@@ -306,6 +306,9 @@ Los patrones de comportamiento se centran en la interacción y comunicación ent
 
 ![DesignPatterns](img5.png)
 
+# UML Table
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Uml_classes_en.svg/300px-Uml_classes_en.svg.png)
 # Patrones Creacionales
 
 ## Abstract Factory
@@ -575,10 +578,153 @@ public class Main {
 
 ## Factory Method
 
-![](https://www.tutorialspoint.com/design_pattern/images/factory_pattern_uml_diagram.jpg)
+![Factory Method](https://www.dofactory.com/img/diagrams/net/factory.png)
 
 Este patron proporciona una interfaz para crear objetos, pero **delega** la responsabilidad de la **creación de objetos** a las **subclases**. Permite que una clase deferir la creación de objetos a las subclases, permitiendo así que las subclases decidan qué **clase concreta** de objeto crear.
 
+### Factory Method VS Abstract Factory
+
+***La principal diferencia entre el patrón Factory Method (Método de Fábrica) y el patrón Abstract Factory (Fábrica Abstracta) radica en su nivel de abstracción y complejidad.***
+
+El patrón Factory Method se centra en la creación de un único producto concreto en cada subclase del Creador (Creator). Cada subclase del Creador tiene su propio Factory Method que devuelve una instancia de un producto específico. **Es adecuado cuando solo necesitas crear un tipo de objeto y su variante**.
+
+En contraste, el patrón Abstract Factory se utiliza para crear **familias de productos** relacionados o interdependientes. Proporciona una interfaz para crear múltiples productos, cada uno de los cuales puede tener múltiples implementaciones.
+
+### Como funciona Factory Method
+
+* **Producto (Product):** Es la interfaz o clase abstracta que define el tipo de objeto que se va a crear.
+
+* **Creador (Creator):** Es una clase abstracta o interfaz que declara el método de fábrica (Factory Method).
+
+* **Creador Concreto (Concrete Creator):** Son las subclases del creador que implementan el Factory Method. Cada creador concreto es responsable de crear un tipo específico de objeto de producto.
+
+* **Producto Concreto (Concrete Product):** Son las clases concretas que implementan la interfaz o heredan de la clase abstracta del producto. Cada producto concreto representa una variante o implementación específica del producto.
+
+### Ejemplo
+
+```java
+// Producto
+public interface Animal {
+    void makeSound();
+}
+
+// Producto Concreto
+public class Dog implements Animal {
+    @Override
+    public void makeSound() {
+        System.out.println("The dog says: Woof!");
+    }
+}
+
+// Producto Concreto
+public class Cat implements Animal {
+    @Override
+    public void makeSound() {
+        System.out.println("The cat says: Meow!");
+    }
+}
+
+// Creador
+public abstract class AnimalCreator {
+    public abstract Animal createAnimal();
+
+    public void performAction() {
+        Animal animal = createAnimal();
+        animal.makeSound();
+    }
+}
+
+// Creador Concreto
+public class DogCreator extends AnimalCreator {
+    @Override
+    public Animal createAnimal() {
+        return new Dog();
+    }
+}
+
+// Creador Concreto
+public class CatCreator extends AnimalCreator {
+    @Override
+    public Animal createAnimal() {
+        return new Cat();
+    }
+}
+
+// Uso del patrón Factory Method
+public class Main {
+    public static void main(String[] args) {
+        AnimalCreator dogCreator = new DogCreator();
+        dogCreator.performAction(); // Crea un perro y hace que haga un sonido
+
+        AnimalCreator catCreator = new CatCreator();
+        catCreator.performAction(); // Crea un gato y hace que haga un sonido
+    }
+}
+```
 # Behavioral Pattern
 
 ## Strategy
+
+![StrategyPattern](https://upload.wikimedia.org/wikipedia/commons/3/32/Strategy_Pattern.jpg)
+
+El patrón de diseño Strategy (Estrategia) es un patrón de comportamiento que permite definir una familia de algoritmos, encapsular cada uno de ellos y hacer que sean intercambiables. Permite que el algoritmo varíe independientemente de los clientes que lo utilizan.
+
+* **Contexto (Context):** Es la clase que utiliza una estrategia concreta. El contexto define una interfaz o una clase abstracta que permite a las estrategias concretas ser intercambiables.
+
+* **Estrategia (Strategy):** Es una interfaz o una clase abstracta que define el comportamiento común para todas las estrategias concretas. Puede contener métodos que representan los algoritmos o las operaciones a realizar.
+
+* **Estrategia Concreta (Concrete Strategy):** Son las clases que implementan la interfaz o heredan de la clase abstracta de la estrategia. Cada estrategia concreta representa una variante o implementación específica del algoritmo.
+
+### Ejemplo
+
+```java
+// Estrategia
+public interface SortingStrategy {
+    void sort(int[] array);
+}
+
+// Estrategia Concreta
+public class BubbleSortStrategy implements SortingStrategy {
+    @Override
+    public void sort(int[] array) {
+        System.out.println("Sorting using bubble sort");
+        // Implementación del algoritmo de bubble sort
+    }
+}
+
+// Estrategia Concreta
+public class QuickSortStrategy implements SortingStrategy {
+    @Override
+    public void sort(int[] array) {
+        System.out.println("Sorting using quick sort");
+        // Implementación del algoritmo de quick sort
+    }
+}
+
+// Contexto
+public class Sorter {
+    private SortingStrategy sortingStrategy;
+
+    public void setSortingStrategy(SortingStrategy sortingStrategy) {
+        this.sortingStrategy = sortingStrategy;
+    }
+
+    public void sortArray(int[] array) {
+        sortingStrategy.sort(array);
+    }
+}
+
+// Uso del patrón Strategy
+public class Main {
+    public static void main(String[] args) {
+        Sorter sorter = new Sorter();
+        int[] array = {5, 2, 7, 1, 3};
+
+        sorter.setSortingStrategy(new BubbleSortStrategy());
+        sorter.sortArray(array); // Ordena el array utilizando bubble sort
+
+        sorter.setSortingStrategy(new QuickSortStrategy());
+        sorter.sortArray(array); // Ordena el array utilizando quick sort
+    }
+}
+```
