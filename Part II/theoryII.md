@@ -661,6 +661,45 @@ public class Main {
     }
 }
 ```
+## Singleton
+
+![SingletonPattern](https://refactoring.guru/images/patterns/diagrams/singleton/structure-en.png?id=4e4306d3a90f40d74c7a4d2d2506b8ec)
+
+El patrón Singleton es un patrón de diseño creacional que se utiliza en programación para garantizar que una clase tenga una **única instancia y proporcionar un punto de acceso global a esa instancia**.
+
+El objetivo principal del patrón Singleton es restringir la creación de objetos de una clase a una única instancia y proporcionar un medio para acceder a esa instancia desde cualquier parte del programa.
+
+El patrón Singleton es útil en situaciones en las que solo se necesita una única instancia de una clase en todo el programa. Algunos casos de uso comunes incluyen el acceso a una base de datos compartida, la gestión de conexiones de red o la creación de registros de eventos.
+
+Es importante tener en cuenta que el patrón Singleton puede ser susceptible a problemas de concurrencia si se utiliza en entornos multi-hilo. Para abordar este problema, se pueden aplicar técnicas adicionales, como la sincronización o el uso de inicialización perezosa (lazy initialization) segura para garantizar que la creación de la instancia sea segura en entornos concurrentes.
+
+### Ejemplo
+
+```java
+public class Singleton {
+    private static Singleton instance;
+    
+    // Constructor privado para evitar la creación de instancias desde fuera de la clase
+    private Singleton() {
+    }
+    
+    // Método estático para obtener la instancia única
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+    
+    // Otros métodos de la clase Singleton
+    public void doSomething() {
+        // ...
+    }
+}
+```
+
+En este ejemplo, la clase Singleton tiene un constructor privado, lo que significa que no se puede crear una instancia de la clase desde fuera de la misma. La instancia única se guarda en una variable estática llamada "instance". El método getInstance() se utiliza para obtener la única instancia de la clase. Si la instancia aún no ha sido creada, se crea una nueva; de lo contrario, se devuelve la instancia existente.
+
 # Behavioral Pattern
 
 ## Strategy
@@ -728,3 +767,118 @@ public class Main {
     }
 }
 ```
+
+# Diseño por capas
+
+El diseño por capas en programación es un enfoque de diseño de software que organiza y estructura el sistema en capas o niveles lógicos. Cada capa se encarga de una funcionalidad específica y se comunica con las capas adyacentes mediante interfaces bien definidas.
+
+Por lo general, se utilizan tres capas principales en el diseño por capas
+
+![diseño por capas](https://reactiveprogramming.io/_next/image?url=%2Ffigures%2Fcapas-flow.png&w=1920&q=75)
+
+* **Capa de presentación:** Es la capa que interactúa con el usuario o con otros sistemas externos. Aquí se gestionan las interfaces de usuario, las interacciones y la presentación de los datos.
+
+* **Capa de lógica de negocio**: Esta capa contiene la lógica del negocio y las reglas específicas de la aplicación. Se encarga de procesar los datos recibidos de la capa de presentación y coordinar las acciones necesarias para cumplir con los requisitos funcionales del sistema.
+
+* **Capa de Persistencia:** Esta capa se encarga de gestionar el acceso y la manipulación de los datos almacenados en una base de datos u otro sistema de persistencia.
+  
+* **Capa de base de datos**: En esta capa se gestionan las operaciones de acceso y manipulación de los datos almacenados en una base de datos u otro sistema de persistencia. Se encarga de realizar consultas, actualizaciones y operaciones de almacenamiento/retrieval de datos.
+
+A veces la capa de persistencia y la capa de base de datos las podemos encontrar juntas como: Capa de Acceso a datos.
+
+La ventaja principal de este enfoque es que permite cambios y actualizaciones en una capa sin afectar directamente a las demás. Por ejemplo, si se cambia la base de datos utilizada, solo sería necesario actualizar la capa de acceso a datos sin modificar las capas superiores.
+
+# Inyección de Dependencias
+
+La inyección de dependencias hace alusión al hecho de proporcionar las dependencias necesarias a un objeto desde el exterior en lugar de que el objeto las cree o las busque directamente. Esto quiere decir que el objeto espera argumentos que pueden ser otros objetos (también conocidos como dependencias) que necesita para funcionar.
+
+Estas dependencias pueden ser proporcionadas de forma CONCRETA/DIRECTA o de forma ABSTRACTA. De ser el último caso, esto quiere decir que el objeto no llamará a la dependencia directamente, lo hará a través de una interfaz. 
+
+![dependencias](https://cdn-media-1.freecodecamp.org/images/1*0P-1JhnUaZeobDUAajIbhA.jpeg)
+
+## Ejemplo
+En términos sencillos, imagina que tienes una clase A que necesita utilizar la funcionalidad de otra clase B para llevar a cabo su trabajo. En lugar de que la clase A cree una instancia de la clase B dentro de sí misma, la Inyección de Dependencias permite que la clase B sea "inyectada" en la clase A desde fuera.
+
+En lugar de que la clase A tenga un acoplamiento fuerte con una implementación específica de la clase B, se basa en una abstracción o interfaz común que define las operaciones que necesita utilizar. Esto permite que diferentes implementaciones de la clase B sean inyectadas en la clase A, siempre y cuando cumplan con la interfaz requerida.
+
+Supongamos que tienes una interfaz ILogger que define una operación Log para realizar registros de mensajes:
+
+```csharp 
+public interface ILogger
+{
+    void Log(string message);
+}
+```
+```csharp
+public class EmailLogger : ILogger
+{
+    public void Log(string message)
+    {
+        // Lógica para enviar el mensaje por correo electrónico
+        Console.WriteLine("Enviando correo electrónico de registro: " + message);
+    }
+}
+```
+
+```csharp
+public class UserService
+{
+    private readonly ILogger _logger;
+
+    public UserService(ILogger logger)
+    {
+        _logger = logger;
+    }
+
+    public void RegisterUser(string username)
+    {
+        // Lógica para registrar al usuario
+
+        // Registro del evento utilizando la dependencia ILogger
+        _logger.Log("Usuario registrado: " + username);
+    }
+}
+```
+
+En el ejemplo anterior, la clase UserService depende de una implementación de ILogger para realizar el registro de eventos. En lugar de crear internamente una instancia de EmailLogger, se pasa la implementación de ILogger a través del constructor de UserService mediante la técnica de inyección de dependencias.
+
+Luego, en el código cliente, puedes crear una instancia de EmailLogger y pasarlo a UserService para su uso:
+
+```csharp
+public class Program
+{
+    public static void Main()
+    {
+        ILogger logger = new EmailLogger();
+        UserService userService = new UserService(logger);
+
+        userService.RegisterUser("JohnDoe");
+    }
+}
+```
+
+En este ejemplo, `EmailLogger` se inyecta en `UserService`, lo que permite utilizar el mismo `UserService` con diferentes implementaciones de `ILogger` según sea necesario. Esto brinda flexibilidad y facilita las pruebas unitarias, ya que se pueden proporcionar implementaciones simuladas o de prueba de `ILogger` para verificar el comportamiento de `UserService` sin la necesidad de enviar correos electrónicos reales.
+
+![inyector de dependencias](https://devopedia.org/images/article/30/4020.1536743448.gif)
+
+# Inversion de Control (IoC - Inversion of Control)
+
+De la mano de Inyección de Dependencias aparece otro patron de diseño conocido como Inversión de Control. El IoC (Inversión de Control) es un principio de diseño y un patrón de arquitectura de software que tiene como objetivo **invertir el control de la creación y gestión de objetos o componentes dentro de una aplicación**.
+
+Este patron ENGLOBA distintos patrones, entre lo cuales se encuentra la Inyección de Dependencias, por eso también podemos encontrarlo como PRINCIPIO.
+
+![IoC2](https://www.tutorialsteacher.com/Content/images/ioc/ioc-patterns.png)
+
+Este modelo nos dice que el control de la creación y resolución de dependencias se delega a un **contenedor** o **framework externo**, conocido como el **"Contenedor de IoC"** o "contenedor de dependencias". Este contenedor es responsable de crear y administrar los objetos y sus dependencias, inyectando las dependencias requeridas en los objetos cuando se necesiten.
+
+![IoC](https://www.oscarblancarteblog.com/wp-content/uploads/2016/11/InversionOfControl3.png)
+
+El IoC promueve la desacoplación y la modularidad en el diseño del software, ya que los objetos no están estrechamente acoplados a las implementaciones concretas de sus dependencias. En cambio, se basan en abstracciones o interfaces para interactuar con otras partes del sistema, como lo dicta la Inyección de Dependencias.
+
+## Diferencia Entre IoC y DI
+
+La diferencia principal entre IoC (Inversión de Control) y DI (Inyección de Dependencias) es que IoC es un **principio** de diseño y una **filosofía general**, mientras que DI es una **técnica específica** que se utiliza para implementar IoC.
+
+* La Inversión de Control (IoC) es un principio de diseño que se refiere a invertir el control de la creación y gestión de objetos dentro de una aplicación. En lugar de que un objeto cree o busque directamente las dependencias que necesita para funcionar, el control se delega a un contenedor o framework externo, el cual es responsable de crear y administrar los objetos y sus dependencias. IoC es un enfoque más amplio y general.
+
+* La Inyección de Dependencias (DI), por otro lado, es una técnica específica que se utiliza para implementar la Inversión de Control. La DI se basa en proporcionar las dependencias necesarias a un objeto desde el exterior en lugar de que el objeto las cree o las busque directamente. Esto se logra a través de la configuración y el uso de un contenedor de IoC que se encarga de manejar la inyección de dependencias en todo el sistema. La DI es una forma concreta de aplicar el principio de IoC.
